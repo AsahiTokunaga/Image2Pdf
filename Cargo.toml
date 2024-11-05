@@ -4,3 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.92"
+jpeg-to-pdf = "0.2.3"
+walkdir = "2.5.0"
