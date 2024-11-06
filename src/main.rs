@@ -21,6 +21,16 @@ fn jpg2pdf<P: AsRef<Path> + ToString + Copy>(root: P) -> Result<()> {
     let mut images: Vec<Vec<u8>> = Vec::new();
     for entry in WalkDir::new(root).sort_by_file_name().contents_first(true) {
         let entry: DirEntry = entry?;
+        if entry
+            .path()
+            .parent()
+            .unwrap()
+            .with_extension("pdf")
+            .as_path()
+            .is_file()
+        {
+            continue;
+        }
         if entry.path().is_dir() {
             if images.is_empty() {
                 continue;
@@ -75,7 +85,7 @@ fn jpg2pdf<P: AsRef<Path> + ToString + Copy>(root: P) -> Result<()> {
                 "[{}/{}] Added Image: {}",
                 progress,
                 all_files,
-                entry.path().to_str().unwrap()
+                entry.path().display()
             );
         }
     }
