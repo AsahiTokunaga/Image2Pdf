@@ -5,9 +5,9 @@ use std::io::BufWriter;
 use std::path::Path;
 
 use anyhow::{Ok, Result};
+use image::{DynamicImage, ImageFormat};
 use jpeg_to_pdf::JpegToPdf;
 use walkdir::{DirEntry, WalkDir};
-use image::{DynamicImage, ImageFormat};
 
 const ALLOW_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "JPG", "JPEG", "png", "PNG"];
 
@@ -54,7 +54,10 @@ fn jpg2pdf<P: AsRef<Path> + ToString + Copy>(root: P) -> Result<()> {
         let extension: &OsStr = entry.path().extension().unwrap();
         if ALLOW_EXTENSIONS.iter().any(|&ex| ex == extension) {
             let all_files: u32 = get_file_count(entry.path().parent().unwrap().to_str().unwrap())?;
-            if ["png", "PNG"].iter().any(|&ex| ex == entry.path().extension().unwrap()) {
+            if ["png", "PNG"]
+                .iter()
+                .any(|&ex| ex == entry.path().extension().unwrap())
+            {
                 png_to_jpg(entry.path())?;
                 images.push(fs::read(entry.path().with_extension("jpg"))?);
                 progress += 1;
@@ -63,7 +66,7 @@ fn jpg2pdf<P: AsRef<Path> + ToString + Copy>(root: P) -> Result<()> {
                     progress,
                     all_files,
                     entry.path().to_str().unwrap()
-                    );
+                );
                 continue;
             }
             images.push(fs::read(entry.path())?);
