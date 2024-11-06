@@ -522,6 +522,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "image2pdf"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "image 0.25.5",
+ "jpeg-to-pdf",
+ "walkdir",
+]
+
+[[package]]
 name = "img-parts"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -615,16 +625,6 @@ dependencies = [
  "kamadak-exif",
  "printpdf",
  "structopt",
-]
-
-[[package]]
-name = "jpg2pdf"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "image 0.25.5",
- "jpeg-to-pdf",
- "walkdir",
 ]
 
 [[package]]
