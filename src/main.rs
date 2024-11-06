@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::fs;
 use std::fs::File;
 use std::io::BufWriter;
@@ -5,7 +6,10 @@ use std::path::Path;
 
 use anyhow::{Ok, Result};
 use jpeg_to_pdf::JpegToPdf;
-use walkdir::{WalkDir, DirEntry};
+use walkdir::{DirEntry, WalkDir};
+use image::{DynamicImage, ImageFormat};
+
+const ALLOW_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "JPG", "JPEG", "png", "PNG"];
 
 fn main() -> Result<()> {
     jpg2pdf("input")?;
@@ -22,31 +26,73 @@ fn jpg2pdf<P: AsRef<Path> + ToString + Copy>(root: P) -> Result<()> {
                 continue;
             }
             let pdf: File = File::create(format!("{}.pdf", entry.path().to_str().unwrap()))?;
-            JpegToPdf::new()
+            match JpegToPdf::new()
                 .add_images(images.clone())
-                .create_pdf(&mut BufWriter::new(pdf))?;
-            println!("[Done] Created PDF: {}", format!("{}.pdf", entry.path().to_str().unwrap()));
-            images.clear();
-            progress = 0;
-            continue;
+                .create_pdf(&mut BufWriter::new(pdf))
+            {
+                std::result::Result::Ok(_) => {
+                    println!(
+                        "[Done] Created PDF: {}",
+                        format!("{}.pdf", entry.path().to_str().unwrap())
+                    );
+                    images.clear();
+                    progress = 0;
+                    continue;
+                }
+                Err(e) => {
+                    println!(
+                        "[FAILED] Couldn't Create PDF: {}",
+                        format!("{}.pdf", entry.path().to_str().unwrap())
+                    );
+                    println!("{}", e);
+                    images.clear();
+                    progress = 0;
+                    continue;
+                }
+            }
         }
-        if entry.path().extension().unwrap() == "jpg" {
+        let extension: &OsStr = entry.path().extension().unwrap();
+        if ALLOW_EXTENSIONS.iter().any(|&ex| ex == extension) {
             let all_files: u32 = get_file_count(entry.path().parent().unwrap().to_str().unwrap())?;
+            if ["png", "PNG"].iter().any(|&ex| ex == entry.path().extension().unwrap()) {
+                png_to_jpg(entry.path())?;
+                images.push(fs::read(entry.path().with_extension("jpg"))?);
+                progress += 1;
+                println!(
+                    "[{}/{}] Added Image: {}",
+                    progress,
+                    all_files,
+                    entry.path().to_str().unwrap()
+                    );
+                continue;
+            }
             images.push(fs::read(entry.path())?);
             progress += 1;
-            println!("[{}/{}] Added Image: {}", progress, all_files, entry.path().to_str().unwrap());
+            println!(
+                "[{}/{}] Added Image: {}",
+                progress,
+                all_files,
+                entry.path().to_str().unwrap()
+            );
         }
     }
     Ok(())
 }
 
-fn get_file_count<D: AsRef<Path>>(dir: D) -> Result<u32> {
+fn get_file_count<P: AsRef<Path>>(path: P) -> Result<u32> {
     let mut file_count: u32 = 0;
-    for entry in WalkDir::new(dir) {
+    for entry in WalkDir::new(path) {
         let entry: DirEntry = entry?;
         if entry.file_type().is_file() {
             file_count += 1;
         }
     }
     Ok(file_count)
+}
+
+fn png_to_jpg<P: AsRef<Path> + Copy>(path: P) -> Result<()> {
+    let image: DynamicImage = image::open(path)?;
+    image.save_with_format(path.as_ref().with_extension("jpg"), ImageFormat::Jpeg)?;
+    fs::remove_file(path)?;
+    Ok(())
 }
