@@ -1,4 +1,3 @@
-use std::ffi::OsStr;
 use std::fs;
 use std::fs::File;
 use std::io::BufWriter;
@@ -61,7 +60,7 @@ fn jpg2pdf<P: AsRef<Path> + ToString + Copy>(root: P) -> Result<()> {
                 }
             }
         }
-        let extension: &OsStr = entry.path().extension().unwrap();
+        let extension: &str = entry.path().extension().unwrap().to_str().unwrap();
         if ALLOW_EXTENSIONS.iter().any(|&ex| ex == extension) {
             let all_files: u32 = get_file_count(entry.path().parent().unwrap().to_str().unwrap())?;
             if ["png", "PNG"]
