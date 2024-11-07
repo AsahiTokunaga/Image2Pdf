@@ -2,6 +2,7 @@ use std::fs;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::Path;
+use std::env;
 
 use anyhow::{Ok, Result};
 use image::{DynamicImage, ImageFormat};
@@ -11,11 +12,13 @@ use walkdir::{DirEntry, WalkDir};
 const ALLOW_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "JPG", "JPEG", "png", "PNG"];
 
 fn main() -> Result<()> {
-    jpg2pdf("input")?;
+    for args in env::args().skip(1) {
+        image2pdf(&args)?;   
+    }
     Ok(())
 }
 
-fn jpg2pdf<P: AsRef<Path> + ToString + Copy>(root: P) -> Result<()> {
+fn image2pdf<P: AsRef<Path> + ToString + Copy>(root: P) -> Result<()> {
     let mut progress: u32 = 0;
     let mut images: Vec<Vec<u8>> = Vec::new();
     for entry in WalkDir::new(root).sort_by_file_name().contents_first(true) {
