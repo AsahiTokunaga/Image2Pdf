@@ -32,9 +32,10 @@ fn to_pdf<P: AsRef<Path>>(path: &P) -> Result<()> {
         }
         if entry.path().is_dir() {
             let pdf: File = File::create(entry.path().with_extension("pdf"))?;
-            match JpegToPdf::new()
+            let result_create_pdf: Result<(), _> = JpegToPdf::new()
                 .add_images(images.clone())
-                .create_pdf(&mut BufWriter::new(pdf)) {
+                .create_pdf(&mut BufWriter::new(pdf));
+            match result_create_pdf {
                 Ok(_) => println!("[Done] Created PDF: {}", entry.path().with_extension("pdf").display()),
                 Err(e) => {
                     println!("[FAILED] Couldn't Create PDF: {}", entry.path().with_extension("pdf").display());
@@ -48,7 +49,7 @@ fn to_pdf<P: AsRef<Path>>(path: &P) -> Result<()> {
         if ALLOW_EXTENSIONS.iter().any(|&allow_ex| allow_ex == extention) {
             let image_path: PathBuf = if ["png", "avif"].contains(&extention.as_str()) {
                 to_jpg(entry.path())?;
-                entry.path().with_extension("jpg").to_path_buf()
+                entry.path().with_extension("jpg")
             } else {
                 entry.path().to_path_buf()
             };
