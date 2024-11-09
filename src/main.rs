@@ -1,4 +1,4 @@
-use anyhow::{Ok, Result};
+use anyhow::{Ok as anyhowOk, Result};
 use image::{ImageFormat, RgbImage};
 use jpeg_to_pdf::JpegToPdf;
 use std::fs::File;
@@ -13,7 +13,7 @@ fn main() -> Result<()> {
     for args in env::args().skip(1) {
         to_pdf(&args)?;
     }
-    Ok(())
+    anyhowOk(())
 }
 
 fn to_pdf<P: AsRef<Path>>(path: &P) -> Result<()> {
@@ -35,15 +35,9 @@ fn to_pdf<P: AsRef<Path>>(path: &P) -> Result<()> {
             match JpegToPdf::new()
                 .add_images(images.clone())
                 .create_pdf(&mut BufWriter::new(pdf)) {
-                std::result::Result::Ok(_) => println!(
-                    "[Done] Created PDF: {}",
-                    entry.path().with_extension("pdf").display()
-                ),
+                Ok(_) => println!("[Done] Created PDF: {}", entry.path().with_extension("pdf").display()),
                 Err(e) => {
-                    println!(
-                        "[FAILED] Couldn't Create PDF: {}",
-                        entry.path().with_extension("pdf").display()
-                    );
+                    println!("[FAILED] Couldn't Create PDF: {}", entry.path().with_extension("pdf").display());
                     println!("{}", e);
                 }
             }
@@ -51,7 +45,7 @@ fn to_pdf<P: AsRef<Path>>(path: &P) -> Result<()> {
             continue;
         }
         let extention: String = entry.path().extension().unwrap().to_str().unwrap().to_lowercase();
-        if ALLOW_EXTENSIONS.iter().any(|&ex| ex == extention) {
+        if ALLOW_EXTENSIONS.iter().any(|&allow_ex| allow_ex == extention) {
             let image_path: PathBuf = if ["png", "avif"].contains(&extention.as_str()) {
                 to_jpg(entry.path())?;
                 entry.path().with_extension("jpg").to_path_buf()
@@ -64,14 +58,14 @@ fn to_pdf<P: AsRef<Path>>(path: &P) -> Result<()> {
             progress += 1;
         }
     }
-    Ok(())
+    anyhowOk(())
 }
 
 fn to_jpg<P: AsRef<Path>>(path: P) -> Result<()> {
     let image: RgbImage = image::open(&path)?.to_rgb8();
     image.save_with_format(path.as_ref().with_extension("jpg"), ImageFormat::Jpeg)?;
     fs::remove_file(path)?;
-    Ok(())
+    anyhowOk(())
 }
 
 fn get_file_count<P: AsRef<Path>>(path: P) -> Result<u32> {
@@ -79,14 +73,13 @@ fn get_file_count<P: AsRef<Path>>(path: P) -> Result<u32> {
     for _ in WalkDir::new(path)
         .into_iter()
         .filter_map(|entry| entry.ok())
+        .filter(|entry| entry.path().is_file())
         .filter(|entry| {
-            entry.path().is_file()
-                && ALLOW_EXTENSIONS.iter().any(|&ex| {
-                    ex.eq_ignore_ascii_case(entry.path().extension().unwrap().to_str().unwrap())
-                })
+            let extention: String = entry.path().extension().unwrap().to_str().unwrap().to_lowercase();
+            ALLOW_EXTENSIONS.contains(&extention.as_str())
         })
     {
         count += 1;
     }
-    Ok(count)
+    anyhowOk(count)
 }
