@@ -31,12 +31,12 @@ fn to_pdf<P: AsRef<Path>>(path: &P) -> Result<()> {
             continue;
         }
         if entry.path().is_dir() {
-            let pdf: File = File::create(entry.path().with_extension("pdf"))?;
+            let pdf: File = File::create(format!("{}.pdf", entry.path().display()))?;
             let result_create_pdf: Result<(), _> = JpegToPdf::new()
                 .add_images(images.clone())
                 .create_pdf(&mut BufWriter::new(pdf));
             match result_create_pdf {
-                Ok(_) => println!("[Done] Created PDF: {}", entry.path().with_extension("pdf").display()),
+                Ok(_) => println!("[Done] Created PDF: {}", format!("{}.pdf", entry.path().display())),
                 Err(e) => {
                     println!("[FAILED] Couldn't Create PDF: {}", entry.path().with_extension("pdf").display());
                     println!("{}", e);
