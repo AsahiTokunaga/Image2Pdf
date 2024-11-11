@@ -75,8 +75,6 @@ async fn to_pdf<P: AsRef<Path>>(path: P) -> Result<()> {
     let mut create_pdf_tasks: Vec<JoinHandle<()>> = Vec::new();
     for dir in dirs {
         let create_pdf_task: JoinHandle<()> = tokio::spawn(async move {
-            let pdf = File::create(format!("{}.pdf", &dir.path().display())).ok().unwrap();
-            let mut writer = BufWriter::new(pdf);
             let images: Vec<Vec<u8>> = WalkDir::new(dir.path())
                 .contents_first(true)
                 .sort_by_file_name()
@@ -99,6 +97,8 @@ async fn to_pdf<P: AsRef<Path>>(path: P) -> Result<()> {
                 .filter_map(|entry| fs::read(entry.path()).ok())
                 .collect();
             if images.is_empty() { return; }
+            let pdf = File::create(format!("{}.pdf", &dir.path().display())).ok().unwrap();
+            let mut writer = BufWriter::new(pdf);
             let result_create_pdf = JpegToPdf::new()
                 .add_images(images.clone())
                 .create_pdf(&mut writer);
