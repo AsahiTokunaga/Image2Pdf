@@ -7,8 +7,8 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
-use walkdir::{DirEntry, WalkDir};
 use tokio::task::JoinHandle;
+use walkdir::{DirEntry, WalkDir};
 
 const ALLOW_EXTENSIONS: [&str; 4] = ["jpg", "jpeg", "png", "avif"];
 
@@ -61,7 +61,7 @@ async fn to_pdf<P: AsRef<Path>>(path: P) -> Result<()> {
                 }
             };
             match png_image.save_with_format(image_path.with_extension("jpg"), ImageFormat::Jpeg) {
-                Ok(_) => (),
+                Ok(_) => println!("[DONE] Converted Png to Jpeg: {}", image_path.display()),
                 Err(e) => println!("[FAILED] Couldn't Save Image With Format Jpeg: {}", e)
             }
             match fs::remove_file(&image_path) {
