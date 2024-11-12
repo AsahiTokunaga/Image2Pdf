@@ -1,8 +1,9 @@
 use anyhow::{Ok as anyhowOk, Result};
 use futures;
 use futures::future::join_all;
-use image::{ImageFormat, RgbImage};
+use image::{ImageFormat, ImageReader, RgbImage};
 use jpeg_to_pdf::JpegToPdf;
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::{Path, PathBuf};
@@ -53,20 +54,49 @@ async fn to_pdf<P: AsRef<Path>>(path: P) -> Result<()> {
     let mut to_jpg_tasks: Vec<JoinHandle<()>> = Vec::new();
     for image_path in png_images {
         let to_jpg_task: JoinHandle<()> = tokio::spawn(async move {
-            let png_image: RgbImage = match image::open(&image_path) {
-                Ok(image) => image.to_rgb8(),
-                Err(e) => {
-                    println!("[FAILED] Couldn't Open Image: {}", e);
-                    return;
+            if image_path.extension().unwrap() == OsStr::new("png") {
+                let png_image: RgbImage = match image::open(&image_path) {
+                    Ok(image) => image.to_rgb8(),
+                    Err(e) => {
+                        println!("[FAILED] Couldn't Open Image: {}", e);
+                        return;
+                    }
+                };
+                match png_image
+                    .save_with_format(image_path.with_extension("jpg"), ImageFormat::Jpeg)
+                {
+                    Ok(_) => println!("[DONE] Converted Png to Jpeg: {}", image_path.display()),
+                    Err(e) => println!("[FAILED] Couldn't Save Png Image With Jpeg: {}", e),
                 }
-            };
-            match png_image.save_with_format(image_path.with_extension("jpg"), ImageFormat::Jpeg) {
-                Ok(_) => println!("[DONE] Converted Png to Jpeg: {}", image_path.display()),
-                Err(e) => println!("[FAILED] Couldn't Save Image With Format Jpeg: {}", e)
-            }
-            match fs::remove_file(&image_path) {
-                Ok(_) => (),
-                Err(e) => println!("[FAILED] Couldn't Remove File {} : {}", image_path.display(), e)
+                match fs::remove_file(&image_path) {
+                    Ok(_) => (),
+                    Err(e) => println!("[FAILED] Couldn't Remove Png Image File {} : {}", image_path.display(), e),
+                }
+            } else {
+                let open_image = match ImageReader::open(&image_path) {
+                    Ok(item) => item.decode(),
+                    Err(e) => {
+                        println!("[FAILED] Couldn't Open Image: {}", e);
+                        return;
+                    }
+                };
+                let avif_image: RgbImage = match open_image {
+                    Ok(item) => item.to_rgb8(),
+                    Err(e) => {
+                        println!("[FAILED] Couldn't Open Avif File: {}", e);
+                        return;
+                    }
+                };
+                match avif_image
+                    .save_with_format(image_path.with_extension("jpg"), ImageFormat::Jpeg)
+                {
+                    Ok(_) => println!("[DONE] Converted Avif to Jpeg: {}", image_path.display()),
+                    Err(e) => println!("[FAILED] Couldn't Save Avif Image with Jpeg: {}", e),
+                }
+                match fs::remove_file(image_path) {
+                    Ok(_) => (),
+                    Err(e) => println!("[FAILED] Couldn't Remove Avif Image File: {}", e),
+                }
             }
         });
         to_jpg_tasks.push(to_jpg_task);
