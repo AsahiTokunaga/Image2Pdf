@@ -124,7 +124,15 @@ async fn to_pdf<P: AsRef<Path>>(path: P) -> Result<()> {
                             .as_str()
                     )
                 )
-                .filter_map(|entry| fs::read(entry.path()).ok())
+                .map(|entry| 
+                    match fs::read(entry.path()) {
+                        Ok(item) => item,
+                        Err(e) => {
+                            println!("[FAILED] Couldn't Add Jpeg Image: {}", e);
+                            return Vec::new();
+                        }
+                    }
+                )
                 .collect();
             if images.is_empty() { return; }
             let pdf = File::create(format!("{}.pdf", &dir.path().display())).ok().unwrap();

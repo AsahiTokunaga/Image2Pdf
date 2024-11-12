@@ -10,3 +10,4 @@ walkdir = "2.5.0"
 image = { version = "0.25.5", features = ["jpeg", "png", "avif", "avif-native"] }
 tokio ={ version = "1.41.1", features = ["macros", "rt-multi-thread", "rt", "tracing"] }
 futures = "0.3.31"
+indicatif = "0.17.8"
