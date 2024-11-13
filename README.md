@@ -33,7 +33,7 @@
   <li>
     Add PKG_CONFIG_PATH<br>
     To get dav1d's PATH
-    <pre><code>pkg-config --variable=pcfiledir dav1d</code></pre>
+    <pre><code>$ pkg-config --variable=pcfiledir dav1d</code></pre>
   </li>
   <li>
     <code>git clone</code>
