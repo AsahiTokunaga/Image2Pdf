@@ -24,11 +24,14 @@
   <li>
     Install <code>nasm</code> and <code>dav1d</code>
     <p><b>Debian:</b></p>
-    <pre><code>$ sudo apt update<br>$ sudo apt install nasm dav1d-devel pkg-config</code></pre>
+    <pre><code>$ sudo apt update
+$ sudo apt install nasm dav1d-devel pkg-config</code></pre>
     <p><b>Fedora:</b></p>
-    <pre><code>$ sudo dnf update<br>$ sudo dnf install nasm dav1d-devel pkg-config</code></pre>
+    <pre><code>$ sudo dnf update
+$ sudo dnf install nasm dav1d-devel pkg-config</code></pre>
     <p><b>Arch Linux:</b></p>
-    <pre><code>$ sudo pacman -Syyu<br>$ sudo pacman -S nasm dav1d pkgconf</code></pre>
+    <pre><code>$ sudo pacman -Syyu
+$ sudo pacman -S nasm dav1d pkgconf</code></pre>
   </li>
   <li>
     Add PKG_CONFIG_PATH<br>
@@ -37,7 +40,8 @@
   </li>
   <li>
     <code>git clone</code>
-    <pre><code>$ git clone https://github.com/hihimamuLab/Image2Pdf.git<br>$ cd Image2Pdf</code></pre>
+    <pre><code>$ git clone https://github.com/hihimamuLab/Image2Pdf.git
+$ cd Image2Pdf</code></pre>
   </li>
   <li>
     <code>cargo run</code>
