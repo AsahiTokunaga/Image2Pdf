@@ -23,15 +23,23 @@
   </li>
   <li>
     Install <code>nasm</code> and <code>dav1d</code>
-    <p><b>Debian:</b></p>
-    <pre><code>$ sudo apt update
+    <ul>
+      <li>
+        <p><b>Debian</b></p>
+        <pre><code>$ sudo apt update
 $ sudo apt install nasm dav1d-devel pkg-config</code></pre>
-    <p><b>Fedora:</b></p>
-    <pre><code>$ sudo dnf update
+      </li>
+      <li>
+        <p><b>Fedora:</b></p>
+        <pre><code>$ sudo dnf update
 $ sudo dnf install nasm dav1d-devel pkg-config</code></pre>
-    <p><b>Arch Linux:</b></p>
-    <pre><code>$ sudo pacman -Syyu
+      </li>
+      <li>
+        <p><b>Arch Linux:</b></p>
+        <pre><code>$ sudo pacman -Syyu
 $ sudo pacman -S nasm dav1d pkgconf</code></pre>
+      </li>
+    </ul>
   </li>
   <li>
     Add PKG_CONFIG_PATH<br>
