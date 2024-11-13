@@ -29,7 +29,7 @@ async fn to_pdf<P: AsRef<Path>>(path: P) -> Result<()> {
         .filter_map(|entry| entry.ok())
         .filter(|entry| entry.path().is_dir())
         .collect();
-    let png_images: Vec<PathBuf> = WalkDir::new(path)
+    let except_jpeg_images: Vec<PathBuf> = WalkDir::new(path)
         .contents_first(true)
         .sort_by_file_name()
         .into_iter()
@@ -50,7 +50,7 @@ async fn to_pdf<P: AsRef<Path>>(path: P) -> Result<()> {
         .map(|entry| entry.path().to_path_buf())
         .collect();
     let mut to_jpg_tasks: Vec<JoinHandle<()>> = Vec::new();
-    for image_path in png_images {
+    for image_path in except_jpeg_images {
         let to_jpg_task: JoinHandle<()> = tokio::spawn(async move {
             let opened_image= match ImageReader::open(&image_path) {
                 Ok(item) => item.decode(),
