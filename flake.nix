@@ -11,15 +11,17 @@
       let
         inherit (nixpkgs.lib) optional;
         pkgs = import nixpkgs { inherit system; };
-
         rustup = pkgs.rustup;
+        dav1d = pkgs.dav1d;
+        nasm = pkgs.nasm;
+        pkgconf = pkgs.pkg-config;
       in {
         devShells.default = pkgs.mkShell {
           buildInputs = [
             rustup
             dav1d
             nasm
-            pkg-config
+            pkgconf
           ];
         };
       }
