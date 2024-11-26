@@ -2,10 +2,7 @@
   description = "Image2Pdf cargo project";
 
   inputs = {
-    nixpkgs = {
-      url = "github:NixOS/nixpkgs/nixpkgs-24.05";
-      ref = "24.04";
-    };
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -20,6 +17,9 @@
         devShells.default = pkgs.mkShell {
           buildInputs = [
             rustup
+            dav1d
+            nasm
+            pkg-config
           ];
         };
       }
